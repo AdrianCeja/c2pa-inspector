@@ -1,0 +1,15 @@
+# Normalize line endings to LF in the repo
+* text=auto eol=lf
+
+# Binary files (never normalize)
+*.exe binary
+*.dll binary
+*.ico binary
+*.icns binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.mp4 binary
+*.mov binary
+*.c2pa binary

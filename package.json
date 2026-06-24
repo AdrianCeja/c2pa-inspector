@@ -1,0 +1,52 @@
+{
+  "name": "c2pa-inspector",
+  "version": "0.1.0",
+  "description": "Desktop app to inspect C2PA / Content Credentials (CAI) in images and videos. macOS-style UI for Windows.",
+  "author": "Adrian <adrianremixmix@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "setup": "node scripts/fetch-c2patool.mjs",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.adrian.c2pa-inspector",
+    "productName": "C2PA Inspector",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/c2patool.exe",
+        "to": "c2patool.exe"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "C2PA Inspector"
+    }
+  }
+}

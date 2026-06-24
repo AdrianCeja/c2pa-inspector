@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+
+# c2patool binary (provided by `npm run setup`)
+resources/c2patool.exe
+
+# Local test media and generated manifests
+media/
+samples/
+*.c2pa
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

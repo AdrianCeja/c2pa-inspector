@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' file: data: blob:; media-src 'self' file: blob:; style-src 'self' 'unsafe-inline'; script-src 'self';"
+    />
+    <title>C2PA Inspector</title>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <!-- Custom macOS-style title bar -->
+    <header class="titlebar">
+      <div class="traffic">
+        <button class="dot close" data-win="close" aria-label="Close" title="Close"></button>
+        <button class="dot min" data-win="minimize" aria-label="Minimize" title="Minimize"></button>
+        <button class="dot max" data-win="maximize" aria-label="Maximize" title="Zoom"></button>
+      </div>
+      <div class="title">C2PA Inspector</div>
+      <div class="titlebar-actions">
+        <button id="btn-open" class="btn">Open files</button>
+        <button id="btn-folder" class="btn">Open folder</button>
+      </div>
+    </header>
+
+    <div class="app">
+      <aside class="sidebar">
+        <div class="sidebar-head">
+          <span>Assets</span>
+          <button id="btn-clear" class="link" title="Clear list">Clear</button>
+        </div>
+        <ul id="list" class="list"></ul>
+        <div class="sidebar-foot">
+          <span id="tool-version" class="muted">c2patool —</span>
+        </div>
+      </aside>
+
+      <main class="detail">
+        <!-- Empty / drop state -->
+        <section id="empty" class="empty">
+          <div class="empty-card">
+            <div class="empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3l7 4v5c0 4.4-3 7.3-7 9-4-1.7-7-4.6-7-9V7l7-4z" />
+                <path d="M9.2 12.2l2 2 3.6-3.8" />
+              </svg>
+            </div>
+            <h1>Drop media to inspect</h1>
+            <p>
+              Drag images or videos here, or use <b>Open files</b> / <b>Open folder</b>.<br />
+              Their C2PA / Content Credentials are read with c2patool.
+            </p>
+          </div>
+        </section>
+
+        <!-- Result view -->
+        <section id="result" class="result hidden">
+          <header class="result-head">
+            <div class="thumb" id="thumb"></div>
+            <div class="result-title">
+              <h1 id="r-name">—</h1>
+              <div id="r-sub" class="muted"></div>
+            </div>
+            <div id="r-state" class="state-badge"></div>
+          </header>
+
+          <nav class="tabs">
+            <button class="tab active" data-tab="summary">Summary</button>
+            <button class="tab" data-tab="raw">Raw JSON</button>
+          </nav>
+
+          <div class="tab-panel" id="panel-summary">
+            <div id="cards" class="cards"></div>
+          </div>
+
+          <div class="tab-panel hidden" id="panel-raw">
+            <div class="raw-toolbar">
+              <button id="btn-copy" class="btn small">Copy</button>
+              <button id="btn-editor" class="btn small">Open in editor</button>
+              <button id="btn-save" class="btn small">Save JSON…</button>
+              <span id="raw-status" class="muted"></span>
+            </div>
+            <div class="json-viewer">
+              <div class="json-pre" id="json"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Drag overlay -->
+    <div id="dropmask" class="dropmask hidden">
+      <div class="dropmask-inner">Drop to inspect</div>
+    </div>
+
+    <script src="parser.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
