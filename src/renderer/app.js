@@ -50,6 +50,29 @@
     showEmpty();
   });
 
+  // ---------- About / Credits ----------
+  const aboutEl = $('#about');
+  $('#btn-about').addEventListener('click', async () => {
+    const info = await window.c2pa.appInfo();
+    $('#about-version').textContent = 'v' + (info && info.version ? info.version : '—');
+    const tv = await window.c2pa.toolVersion();
+    $('#about-tool').textContent = tv ? 'Bundled ' + tv + '.' : '';
+    aboutEl.classList.remove('hidden');
+  });
+  $('#about-close').addEventListener('click', () => aboutEl.classList.add('hidden'));
+  aboutEl.addEventListener('click', (e) => {
+    if (e.target === aboutEl) aboutEl.classList.add('hidden');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') aboutEl.classList.add('hidden');
+  });
+  document.querySelectorAll('[data-ext]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.c2pa.openExternal(a.dataset.ext);
+    });
+  });
+
   // ---------- Tabs ----------
   document.querySelectorAll('.tab').forEach((tab) => {
     tab.addEventListener('click', () => {

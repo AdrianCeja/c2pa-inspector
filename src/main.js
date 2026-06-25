@@ -120,6 +120,11 @@ function registerIpc() {
     return { ok: true, path: filePath };
   });
 
+  ipcMain.handle('app:info', () => ({ version: app.getVersion() }));
+  ipcMain.handle('open:external', (_e, url) => {
+    if (typeof url === 'string' && /^https?:\/\//i.test(url)) shell.openExternal(url);
+  });
+
   ipcMain.on('window:minimize', () => mainWindow?.minimize());
   ipcMain.on('window:maximize', () => {
     if (!mainWindow) return;

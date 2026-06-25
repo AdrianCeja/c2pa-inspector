@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld('c2pa', {
   pickFolder: () => ipcRenderer.invoke('pick:folder'),
   openInEditor: (json, name) => ipcRenderer.invoke('open:editor', { json, name }),
   saveJson: (json, name) => ipcRenderer.invoke('save:json', { json, name }),
+  appInfo: () => ipcRenderer.invoke('app:info'),
+  openExternal: (url) => ipcRenderer.invoke('open:external', url),
 
   // Resolve the absolute path of a dropped File (File.path was removed in
   // recent Electron versions in favour of webUtils.getPathForFile).
