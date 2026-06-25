@@ -20,6 +20,11 @@
   "build": {
     "appId": "com.adrian.c2pa-inspector",
     "productName": "C2PA Inspector",
+    "publish": {
+      "provider": "github",
+      "owner": "AdrianCeja",
+      "repo": "c2pa-inspector"
+    },
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -32,21 +37,32 @@
       {
         "from": "resources/c2patool.exe",
         "to": "c2patool.exe"
+      },
+      {
+        "from": "THIRD-PARTY-NOTICES.md",
+        "to": "THIRD-PARTY-NOTICES.md"
       }
     ],
     "win": {
       "target": [
-        "nsis",
-        "portable"
-      ],
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+        "nsis"
+      ]
     },
     "nsis": {
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "shortcutName": "C2PA Inspector"
+      "createDesktopShortcut": false,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": false,
+      "menuCategory": false,
+      "shortcutName": "C2PA Inspector",
+      "include": "build/installer.nsh",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "deleteAppDataOnUninstall": false
     }
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
   }
 }

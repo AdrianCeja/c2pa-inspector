@@ -6,6 +6,7 @@ const os = require('node:os');
 const fs = require('node:fs/promises');
 const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
+const { autoUpdater } = require('electron-updater');
 
 const execFileAsync = promisify(execFile);
 const isDev = !app.isPackaged;
@@ -53,10 +54,23 @@ function createWindow() {
 app.whenReady().then(() => {
   registerIpc();
   createWindow();
+  initAutoUpdate();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
+
+// Checks GitHub Releases for a newer version, downloads it in the background
+// and installs it on quit. No-ops in development (unpackaged build).
+function initAutoUpdate() {
+  if (!app.isPackaged) return;
+  autoUpdater.on('error', (err) =>
+    console.error('[updater]', err == null ? 'unknown error' : err.message || err),
+  );
+  autoUpdater
+    .checkForUpdatesAndNotify()
+    .catch((err) => console.error('[updater]', err.message || err));
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
