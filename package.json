@@ -23,7 +23,8 @@
     "publish": {
       "provider": "github",
       "owner": "AdrianCeja",
-      "repo": "c2pa-inspector"
+      "repo": "c2pa-inspector",
+      "releaseType": "release"
     },
     "directories": {
       "output": "dist",
