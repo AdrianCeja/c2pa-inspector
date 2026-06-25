@@ -50,9 +50,20 @@ npm run dev
 npm run dist
 ```
 
-This produces an NSIS installer and a portable `.exe` in `dist/`. The
-`c2patool.exe` binary is bundled automatically. To use a custom app icon, drop a
-256×256 `build/icon.ico` before building.
+This produces an NSIS installer in `dist/`. The `c2patool.exe` binary is bundled
+automatically. To use a custom app icon, drop a 256×256 `build/icon.ico` before
+building.
+
+## Releasing a new version
+
+Releases are built and published automatically by GitHub Actions
+(`.github/workflows/release.yml`) whenever a version tag is pushed. Installed
+apps then update themselves via `electron-updater`.
+
+```powershell
+npm version patch      # bumps package.json (e.g. 0.1.0 -> 0.1.1) and tags it
+git push --follow-tags # pushes the commit and the tag -> CI builds & publishes
+```
 
 ## How it works
 
