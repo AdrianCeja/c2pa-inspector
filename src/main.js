@@ -92,15 +92,6 @@ function registerIpc() {
     return canceled ? [] : filePaths;
   });
 
-  ipcMain.handle('pick:folder', async () => {
-    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-      title: 'Select a folder to scan',
-      properties: ['openDirectory'],
-    });
-    if (canceled || !filePaths[0]) return [];
-    return listMedia(filePaths[0]);
-  });
-
   ipcMain.handle('open:editor', async (_e, { json, name }) => {
     const file = path.join(os.tmpdir(), 'c2pa-inspector', safeName(name));
     await fs.mkdir(path.dirname(file), { recursive: true });
@@ -177,15 +168,6 @@ async function analyze(filePath) {
       noManifest,
     };
   }
-}
-
-/** List supported media files directly inside a folder. */
-async function listMedia(dir) {
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-  return entries
-    .filter((e) => e.isFile() && MEDIA_EXT.has(path.extname(e.name).toLowerCase()))
-    .map((e) => path.join(dir, e.name))
-    .sort();
 }
 
 /** Build a safe `<base>.manifest.json` filename from an asset name. */

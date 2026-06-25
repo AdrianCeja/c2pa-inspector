@@ -14,7 +14,7 @@ built with Electron and styled after macOS, running on Windows.
 ## Features
 
 - **Images and videos** — JPG, PNG, WebP, AVIF, TIFF, MP4, MOV…
-- **Drag & drop** one or many files, or pick a file / a whole folder (batch).
+- **Drag & drop** one or many files, or pick files to inspect.
 - **Readable summary cards**: validation state, content credentials & CAI
   versions, AI generation + model, signing certificate, and provenance
   (ingredient chain).

@@ -10,7 +10,6 @@ contextBridge.exposeInMainWorld('c2pa', {
   toolVersion: () => ipcRenderer.invoke('tool:version'),
   analyze: (filePath) => ipcRenderer.invoke('analyze', filePath),
   pickFiles: () => ipcRenderer.invoke('pick:files'),
-  pickFolder: () => ipcRenderer.invoke('pick:folder'),
   openInEditor: (json, name) => ipcRenderer.invoke('open:editor', { json, name }),
   saveJson: (json, name) => ipcRenderer.invoke('save:json', { json, name }),
   appInfo: () => ipcRenderer.invoke('app:info'),

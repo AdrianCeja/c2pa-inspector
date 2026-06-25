@@ -91,9 +91,11 @@ body {
 
 /* ---------- Title bar ---------- */
 .titlebar {
+  position: relative;
   height: 44px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   padding: 0 14px;
   -webkit-app-region: drag;
@@ -147,8 +149,10 @@ body {
 }
 
 .title {
-  flex: 1;
-  text-align: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);

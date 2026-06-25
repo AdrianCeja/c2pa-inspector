@@ -42,7 +42,6 @@
 
   // ---------- Toolbar buttons ----------
   $('#btn-open').addEventListener('click', async () => addPaths(await window.c2pa.pickFiles()));
-  $('#btn-folder').addEventListener('click', async () => addPaths(await window.c2pa.pickFolder()));
   $('#btn-clear').addEventListener('click', () => {
     items = [];
     selectedId = null;
