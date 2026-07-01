@@ -514,6 +514,10 @@ body {
   background: rgba(0, 122, 255, 0.14);
   color: var(--accent);
 }
+.pill.multi {
+  background: rgba(255, 149, 0, 0.16);
+  color: var(--warn);
+}
 
 .chain {
   display: flex;
@@ -636,6 +640,88 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(127, 127, 127, 0.55);
   background-clip: padding-box;
+}
+
+/* ---------- Update button (Discord-style) ---------- */
+.update-btn {
+  color: var(--accent);
+  position: relative;
+}
+.update-btn.downloading {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.update-btn.ready::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  border: 1.5px solid var(--panel);
+}
+
+/* ---------- Find in JSON ---------- */
+.find-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin-bottom: 10px;
+  padding: 5px 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+.find-bar svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+#find-input {
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--text);
+  background: none;
+  border: none;
+  outline: none;
+  width: 190px;
+}
+.find-count {
+  font-size: 11.5px;
+  color: var(--muted);
+  min-width: 46px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.find-nav {
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--muted);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 7px;
+  cursor: pointer;
+}
+.find-nav:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+mark.find-hit {
+  background: rgba(255, 214, 10, 0.4);
+  color: inherit;
+  border-radius: 2px;
+}
+mark.find-hit.current {
+  background: var(--warn);
+  color: #000;
 }
 
 /* ---------- Icon button ---------- */

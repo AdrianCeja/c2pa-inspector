@@ -19,6 +19,13 @@
       </div>
       <div class="title">C2PA Inspector</div>
       <div class="titlebar-actions">
+        <button id="btn-update" class="btn icon-btn update-btn hidden" title="Update available" aria-label="Download update">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v12" />
+            <path d="M7 10l5 5 5-5" />
+            <path d="M5 21h14" />
+          </svg>
+        </button>
         <button id="btn-open" class="btn">Open files</button>
         <button id="btn-about" class="btn icon-btn" title="About" aria-label="About">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -81,6 +88,17 @@
           </div>
 
           <div class="tab-panel hidden" id="panel-raw">
+            <div id="find-bar" class="find-bar hidden">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.3-4.3" />
+              </svg>
+              <input id="find-input" type="text" placeholder="Find in JSON" spellcheck="false" />
+              <span id="find-count" class="find-count"></span>
+              <button id="find-prev" class="find-nav" title="Previous (Shift+Enter)" aria-label="Previous match">&#9650;</button>
+              <button id="find-next" class="find-nav" title="Next (Enter)" aria-label="Next match">&#9660;</button>
+              <button id="find-close" class="find-nav" title="Close (Esc)" aria-label="Close find">&times;</button>
+            </div>
             <div class="raw-toolbar">
               <button id="btn-copy" class="btn small">Copy</button>
               <button id="btn-editor" class="btn small">Open in editor</button>

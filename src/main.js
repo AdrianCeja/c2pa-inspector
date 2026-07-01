@@ -25,6 +25,10 @@ function c2patoolPath() {
 
 let mainWindow = null;
 
+// Last known auto-update status, so the renderer can ask for it on load
+// (events may fire before the window has finished loading).
+let updateStatus = { state: 'idle', version: null, percent: 0 };
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1180,
@@ -60,15 +64,42 @@ app.whenReady().then(() => {
   });
 });
 
-// Checks GitHub Releases for a newer version, downloads it in the background
-// and installs it on quit. No-ops in development (unpackaged build).
+// Checks GitHub Releases for a newer version and downloads it in the
+// background. The renderer shows a Download button (Discord-style) that only
+// appears when an update exists; clicking it restarts and installs.
+// No-ops in development (unpackaged build).
 function initAutoUpdate() {
   if (!app.isPackaged) return;
+
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  const send = (channel, payload) => {
+    try {
+      mainWindow?.webContents.send(channel, payload);
+    } catch {
+      /* window gone */
+    }
+  };
+
   autoUpdater.on('error', (err) =>
     console.error('[updater]', err == null ? 'unknown error' : err.message || err),
   );
+  autoUpdater.on('update-available', (info) => {
+    updateStatus = { state: 'available', version: (info && info.version) || null, percent: 0 };
+    send('update:available', updateStatus);
+  });
+  autoUpdater.on('download-progress', (p) => {
+    updateStatus = { ...updateStatus, state: 'downloading', percent: p ? p.percent : 0 };
+    send('update:progress', updateStatus);
+  });
+  autoUpdater.on('update-downloaded', (info) => {
+    updateStatus = { state: 'downloaded', version: (info && info.version) || updateStatus.version, percent: 100 };
+    send('update:downloaded', updateStatus);
+  });
+
   autoUpdater
-    .checkForUpdatesAndNotify()
+    .checkForUpdates()
     .catch((err) => console.error('[updater]', err.message || err));
 }
 
@@ -112,6 +143,12 @@ function registerIpc() {
   });
 
   ipcMain.handle('app:info', () => ({ version: app.getVersion() }));
+  ipcMain.handle('update:state', () => updateStatus);
+  ipcMain.handle('update:install', () => {
+    // Restart into the freshly downloaded version.
+    setImmediate(() => autoUpdater.quitAndInstall(false, true));
+    return { ok: true };
+  });
   ipcMain.handle('open:external', (_e, url) => {
     if (typeof url === 'string' && /^https?:\/\//i.test(url)) shell.openExternal(url);
   });

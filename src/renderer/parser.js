@@ -179,12 +179,24 @@
     else if (state === 'Invalid') badge = 'bad';
     else if (state === 'Unknown') badge = 'none';
 
+    // Distinct C2PA claim versions present anywhere in the store. A store can
+    // mix versions (e.g. a v2 asset built on v1 ingredients), so we surface
+    // every version found, not just the active manifest's.
+    const claimVersions = [];
+    for (const vm of manifests) {
+      if (vm.claimVersion != null && !claimVersions.includes(vm.claimVersion)) {
+        claimVersions.push(vm.claimVersion);
+      }
+    }
+    claimVersions.sort((a, b) => Number(a) - Number(b));
+
     return {
       validationState: state,
       validationBadge: badge,
       failures,
       informational,
       successes,
+      claimVersions,
       activeId,
       active: activeId ? byId[activeId] : manifests[0] || null,
       manifests,

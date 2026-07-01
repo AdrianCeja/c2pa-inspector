@@ -15,6 +15,16 @@ contextBridge.exposeInMainWorld('c2pa', {
   appInfo: () => ipcRenderer.invoke('app:info'),
   openExternal: (url) => ipcRenderer.invoke('open:external', url),
 
+  // Auto-update: the renderer shows a Download button only when an update
+  // exists, and calls install() to restart into the new version.
+  updates: {
+    state: () => ipcRenderer.invoke('update:state'),
+    install: () => ipcRenderer.invoke('update:install'),
+    onAvailable: (cb) => ipcRenderer.on('update:available', (_e, d) => cb(d)),
+    onProgress: (cb) => ipcRenderer.on('update:progress', (_e, d) => cb(d)),
+    onDownloaded: (cb) => ipcRenderer.on('update:downloaded', (_e, d) => cb(d)),
+  },
+
   // Resolve the absolute path of a dropped File (File.path was removed in
   // recent Electron versions in favour of webUtils.getPathForFile).
   pathForFile: (file) => {

@@ -1,6 +1,6 @@
 {
   "name": "c2pa-inspector",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Desktop app to inspect C2PA / Content Credentials (CAI) in images and videos. macOS-style UI for Windows.",
   "author": "Adrian <adrianremixmix@gmail.com>",
   "license": "MIT",

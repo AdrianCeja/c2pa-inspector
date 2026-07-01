@@ -72,14 +72,47 @@
     });
   });
 
+  // ---------- Auto-update (Discord-style Download button) ----------
+  const updateBtn = $('#btn-update');
+  let updateReady = false;
+
+  function applyUpdateState(st) {
+    if (!st || st.state === 'idle') return;
+    updateBtn.classList.remove('hidden');
+    if (st.state === 'downloaded') {
+      updateReady = true;
+      updateBtn.classList.add('ready');
+      updateBtn.classList.remove('downloading');
+      updateBtn.title = 'Restart to update' + (st.version ? ' to v' + st.version : '');
+    } else {
+      updateReady = false;
+      updateBtn.classList.add('downloading');
+      updateBtn.classList.remove('ready');
+      const pct = st.percent ? ' (' + Math.round(st.percent) + '%)' : '';
+      updateBtn.title = 'Downloading update…' + pct;
+    }
+  }
+
+  updateBtn.addEventListener('click', async () => {
+    if (updateReady) await window.c2pa.updates.install();
+  });
+
+  if (window.c2pa.updates) {
+    window.c2pa.updates.onAvailable(applyUpdateState);
+    window.c2pa.updates.onProgress(applyUpdateState);
+    window.c2pa.updates.onDownloaded(applyUpdateState);
+  }
+
   // ---------- Tabs ----------
+  function activateTab(which) {
+    document
+      .querySelectorAll('.tab')
+      .forEach((t) => t.classList.toggle('active', t.dataset.tab === which));
+    $('#panel-summary').classList.toggle('hidden', which !== 'summary');
+    $('#panel-raw').classList.toggle('hidden', which !== 'raw');
+  }
   document.querySelectorAll('.tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t === tab));
-      const which = tab.dataset.tab;
-      $('#panel-summary').classList.toggle('hidden', which !== 'summary');
-      $('#panel-raw').classList.toggle('hidden', which !== 'raw');
-    });
+    tab.addEventListener('click', () => activateTab(tab.dataset.tab));
   });
 
   // ---------- Raw JSON actions ----------
@@ -120,6 +153,104 @@
     document.execCommand('copy');
     document.body.removeChild(ta);
   }
+
+  // ---------- Find in JSON (Ctrl/Cmd+F) ----------
+  const findBar = $('#find-bar');
+  const findInput = $('#find-input');
+  const findCount = $('#find-count');
+  let findHits = [];
+  let findIndex = -1;
+  let jsonBaseHTML = ''; // clean highlighted JSON, before any find marks
+
+  function openFind() {
+    if ($('#result').classList.contains('hidden')) return; // nothing to search
+    activateTab('raw');
+    findBar.classList.remove('hidden');
+    findInput.focus();
+    findInput.select();
+    if (findInput.value) runFind();
+  }
+
+  function closeFind() {
+    findBar.classList.add('hidden');
+    if (jsonBaseHTML) $('#json').innerHTML = jsonBaseHTML;
+    findHits = [];
+    findIndex = -1;
+    findCount.textContent = '';
+  }
+
+  function runFind() {
+    const q = findInput.value;
+    const box = $('#json');
+    if (jsonBaseHTML) box.innerHTML = jsonBaseHTML;
+    findHits = [];
+    findIndex = -1;
+    if (!q) {
+      findCount.textContent = '';
+      return;
+    }
+    const needle = q.toLowerCase();
+
+    // Collect text nodes first, then wrap matches, so token colouring stays.
+    const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT, null);
+    const nodes = [];
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) nodes.push(n);
+
+    for (const node of nodes) {
+      const text = node.nodeValue;
+      const lower = text.toLowerCase();
+      let idx = lower.indexOf(needle);
+      if (idx === -1) continue;
+      const frag = document.createDocumentFragment();
+      let last = 0;
+      while (idx !== -1) {
+        if (idx > last) frag.appendChild(document.createTextNode(text.slice(last, idx)));
+        const mark = document.createElement('mark');
+        mark.className = 'find-hit';
+        mark.textContent = text.slice(idx, idx + q.length);
+        frag.appendChild(mark);
+        findHits.push(mark);
+        last = idx + q.length;
+        idx = lower.indexOf(needle, last);
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      node.parentNode.replaceChild(frag, node);
+    }
+
+    if (findHits.length) setFindIndex(0);
+    else findCount.textContent = 'No results';
+  }
+
+  function setFindIndex(i) {
+    if (!findHits.length) return;
+    if (findIndex >= 0 && findHits[findIndex]) findHits[findIndex].classList.remove('current');
+    findIndex = ((i % findHits.length) + findHits.length) % findHits.length;
+    const cur = findHits[findIndex];
+    cur.classList.add('current');
+    cur.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    findCount.textContent = `${findIndex + 1} / ${findHits.length}`;
+  }
+
+  findInput.addEventListener('input', runFind);
+  findInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      setFindIndex(findIndex + (e.shiftKey ? -1 : 1));
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      closeFind();
+    }
+  });
+  $('#find-next').addEventListener('click', () => setFindIndex(findIndex + 1));
+  $('#find-prev').addEventListener('click', () => setFindIndex(findIndex - 1));
+  $('#find-close').addEventListener('click', closeFind);
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'f') {
+      e.preventDefault();
+      openFind();
+    }
+  });
 
   // ---------- Drag & drop ----------
   const mask = $('#dropmask');
@@ -275,6 +406,8 @@
     currentRaw = item.result && item.result.raw ? item.result.raw : '';
     currentName = item.name;
     $('#json').innerHTML = currentRaw ? highlightJSON(currentRaw) : emptyJsonNote(item);
+    jsonBaseHTML = $('#json').innerHTML;
+    if (!findBar.classList.contains('hidden')) runFind();
   }
 
   function buildThumb(item) {
@@ -312,6 +445,13 @@
     let valInner = row('State', `<span class="pill ${P.validationBadge}">${esc(P.validationState)}</span>`);
     valInner += row('Checks passed', P.successes != null ? String(P.successes) : null);
     valInner += row('Manifests in store', String(P.manifests.length));
+    if (P.claimVersions && P.claimVersions.length) {
+      const multi = P.claimVersions.length > 1;
+      const pills = P.claimVersions
+        .map((v) => `<span class="pill${multi ? ' multi' : ''}">v${esc(v)}</span>`)
+        .join(' ');
+      valInner += row(multi ? 'Claim versions ⚠' : 'Claim version', pills);
+    }
     for (const f of P.failures) {
       valInner += row(Parser.prettify(f.code), esc(f.explanation));
     }
@@ -368,8 +508,9 @@
             const ref = ing.activeManifest && P.byId[ing.activeManifest];
             const gen = ref && ref.generators[0] ? `${ref.generators[0].name}` : '';
             const signer = ref && ref.signature ? ref.signature.issuer : '';
+            const cv = ref && ref.claimVersion != null ? `claim v${ref.claimVersion}` : '';
             const rel = ing.relationship ? `<span class="pill">${esc(ing.relationship)}</span>` : '';
-            const meta = [gen, signer].filter(Boolean).map(esc).join(' · ');
+            const meta = [gen, signer, cv].filter(Boolean).map(esc).join(' · ');
             return `<div class="chain-item"><span class="idx">${i + 1}</span><div><div>${esc(
               ing.title,
             )} ${rel}</div>${meta ? `<div class="li-sub">${meta}</div>` : ''}</div></div>`;
@@ -429,5 +570,13 @@
     const v = await window.c2pa.toolVersion();
     $('#tool-version').textContent = v ? v : 'c2patool not found — run "npm run setup"';
     window.c2pa.window.onState(() => {});
+    // Catch an update that was already found before listeners were wired.
+    if (window.c2pa.updates) {
+      try {
+        applyUpdateState(await window.c2pa.updates.state());
+      } catch {
+        /* ignore */
+      }
+    }
   })();
 })();
